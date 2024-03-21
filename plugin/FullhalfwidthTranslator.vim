@@ -6,7 +6,7 @@ let g:loaded_FullHalfWidthTranslator_plugifn = 1
 " 定义执行转换的函数
 function! FullHalfWidthTranslator#ApplyTransformation(type, widthType)
     let save_cursor = getpos('.')
-    let t_save = @t
+    let t_save = @k
 
     if a:type == "\<C-V>"
         " 块选择模式
@@ -28,16 +28,23 @@ function! FullHalfWidthTranslator#ApplyTransformation(type, widthType)
             normal! '[V']
         elseif a:type == 'char'
             normal! `[v`]
+        elseif a:type ==? 'v'
+            normal! gv
+        else
+            normal! '[v']
         endif
 
-        normal! "ty
-        let selectedText = @t
+        normal! "ky
+        let selectedText = @k
+        echo selectedText
         let transformedText = FullHalfWidthTranslator#Translate(selectedText, a:widthType)
-        call setreg('"', transformedText)
-        normal! gv"0p
+        if transformedText != selectedText
+          call setreg('k', transformedText)
+          normal! gv"kp
+        endif
     endif
 
-    call setreg('t', t_save)
+    call setreg('k', t_save)
     call setpos('.', save_cursor)
 endfunction
 
@@ -56,13 +63,13 @@ endfunction
 
 " 使用包装函数的映射
 nnoremap <silent> <Plug>(FullWidth2HalfWidth) :set operatorfunc=FullHalfWidthTranslator#HalfWidthOperator<CR>g@
-vnoremap <silent> <Plug>(FullWidth2HalfWidth) :<C-u>call FullHalfWidthTranslator#HalfWidth()<CR>
+vnoremap <silent> <Plug>(FullWidth2HalfWidth) :<C-u>call FullHalfWidthTranslator#HalfWidthOperator(visualmode())<CR>
 
 nnoremap <silent> <Plug>(HalfWidth2FullWidth) :set operatorfunc=FullHalfWidthTranslator#FullWidthOperator<CR>g@
-vnoremap <silent> <Plug>(HalfWidth2FullWidth) :<C-u>call FullHalfWidthTranslator#FullWidth()<CR>
+vnoremap <silent> <Plug>(HalfWidth2FullWidth) :<C-u>call FullHalfWidthTranslator#FullWidthOperator(visualmode())<CR>
 
 nnoremap <silent> <Plug>(ToggleFullWidthHalfWidth) :set operatorfunc=FullHalfWidthTranslator#ToggleWidthOperator<CR>g@
-vnoremap <silent> <Plug>(ToggleFullWidthHalfWidth) :<C-u>call FullHalfWidthTranslator#Toggle()<CR>
+vnoremap <silent> <Plug>(ToggleFullWidthHalfWidth) :<C-u>call FullHalfWidthTranslator#ToggleWidthOperator(visualmode())<CR>
 
 " 设置操作符映射键
 " Map converting to half-width
