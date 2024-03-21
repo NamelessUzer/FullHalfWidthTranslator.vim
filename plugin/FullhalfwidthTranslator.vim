@@ -36,7 +36,6 @@ function! FullHalfWidthTranslator#ApplyTransformation(type, widthType)
 
         normal! "ky
         let selectedText = @k
-        echo selectedText
         let transformedText = FullHalfWidthTranslator#Translate(selectedText, a:widthType)
         if transformedText != selectedText
           call setreg('k', transformedText)
